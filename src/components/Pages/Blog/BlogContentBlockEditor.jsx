@@ -169,6 +169,7 @@ const BlogContentBlockEditor = ({ blocks, onChange }) => {
                       <button
                         type="button"
                         className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 font-semibold"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
                           const ta = textAreaRefs.current[block.id];
                           const res = wrapSelection(ta, '**');
@@ -186,6 +187,7 @@ const BlogContentBlockEditor = ({ blocks, onChange }) => {
                       <button
                         type="button"
                         className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 italic"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
                           const ta = textAreaRefs.current[block.id];
                           const res = wrapSelection(ta, '*');
@@ -203,6 +205,7 @@ const BlogContentBlockEditor = ({ blocks, onChange }) => {
                       <button
                         type="button"
                         className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 text-green-700"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
                           const ta = textAreaRefs.current[block.id];
                           const res = wrapSelection(ta, '==');
