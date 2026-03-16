@@ -11,6 +11,19 @@ export const escapeHtml = (s) => {
   return div.innerHTML;
 };
 
+// Simple inline formatter for blog content: **bold**, *italic*, ==accent==
+const formatInline = (text) => {
+  // First escape HTML, then apply lightweight markdown-style replacements
+  let html = escapeHtml(text || '').replace(/\n/g, '<br />');
+  // Bold: **tekst**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic: *tekst*
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Accent: ==tekst== (green accent span)
+  html = html.replace(/==(.+?)==/g, '<span class="blog-accent-inline">$1</span>');
+  return html;
+};
+
 /** Build HTML from blocks for Supabase content column */
 export const blocksToHtml = (blocks) => {
   return (blocks || [])
@@ -36,7 +49,7 @@ export const blocksToHtml = (blocks) => {
             ? 'blog-accent'
             : '';
         const open = className ? `<p class="${className}">` : '<p>';
-        return `${open}${escapeHtml(block.text || '').replace(/\n/g, '<br />')}</p>`;
+        return `${open}${formatInline(block.text)}</p>`;
       }
       if (block.type === 'raw') {
         return block.rawContent || '';
