@@ -26,7 +26,17 @@ export const blocksToHtml = (blocks) => {
         return `<img src="${escapeHtml(src)}" alt="" />`;
       }
       if (block.type === 'text') {
-        return `<p>${escapeHtml(block.text || '').replace(/\n/g, '<br />')}</p>`;
+        const variant = block.variant || 'normal';
+        const className =
+          variant === 'lead'
+            ? 'blog-lead'
+            : variant === 'small'
+            ? 'blog-small'
+            : variant === 'accent'
+            ? 'blog-accent'
+            : '';
+        const open = className ? `<p class="${className}">` : '<p>';
+        return `${open}${escapeHtml(block.text || '').replace(/\n/g, '<br />')}</p>`;
       }
       if (block.type === 'raw') {
         return block.rawContent || '';
@@ -58,10 +68,16 @@ export const htmlToBlocks = (html) => {
         text: el.textContent || '',
       });
     } else if (t === 'p') {
+      const cls = (el.getAttribute('class') || '').split(/\s+/);
+      let variant = 'normal';
+      if (cls.includes('blog-lead')) variant = 'lead';
+      else if (cls.includes('blog-small')) variant = 'small';
+      else if (cls.includes('blog-accent')) variant = 'accent';
       blocks.push({
         id: blockId(),
         type: 'text',
         text: el.textContent || '',
+        variant,
       });
     } else if (t === 'img') {
       let path = el.getAttribute('src') || '';
@@ -86,7 +102,7 @@ export const defaultBlock = (type) => {
   const id = blockId();
   if (type === 'header') return { id, type: 'header', level: 2, text: '' };
   if (type === 'image') return { id, type: 'image', path: 'Blog/' };
-  if (type === 'text') return { id, type: 'text', text: '' };
+  if (type === 'text') return { id, type: 'text', text: '', variant: 'normal' };
   if (type === 'raw') return { id, type: 'raw', rawContent: '' };
   return { id, type: 'text', text: '' };
 };

@@ -158,6 +158,22 @@ const blogService = {
 
     return { data, error };
   },
+
+  /**
+   * Delete a blog article by slug (for admin use).
+   * @param {string} slug
+   * @returns {Promise<{ data: object | null, error: object | null }>}
+   */
+  deleteArticle: async (slug) => {
+    const { data, error } = await supabase
+      .from('blog_articles')
+      .delete()
+      .eq('slug', slug)
+      .select()
+      .maybeSingle();
+
+    return { data, error };
+  },
 };
 
 export default blogService;

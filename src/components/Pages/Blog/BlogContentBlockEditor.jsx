@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { defaultBlock } from '../../../utils/blogContentUtils';
+
+// Wrap selected text in textarea with prefix/suffix, preserving selection
+const wrapSelection = (textarea, prefix, suffix = prefix) => {
+  if (!textarea) return null;
+  const { selectionStart, selectionEnd, value } = textarea;
+  const start = selectionStart ?? 0;
+  const end = selectionEnd ?? 0;
+  const before = value.slice(0, start);
+  const selected = value.slice(start, end);
+  const after = value.slice(end);
+  const newValue = before + prefix + selected + suffix + after;
+  const newCursorStart = start + prefix.length;
+  const newCursorEnd = newCursorStart + selected.length;
+  return { newValue, newCursorStart, newCursorEnd };
+};
 
 /**
  * Block-based content editor: header (h1–h6), image, text, raw HTML.
  * Used for both creating and editing articles.
  */
 const BlogContentBlockEditor = ({ blocks, onChange }) => {
+  const textAreaRefs = useRef({});
   const addBlock = (type) => onChange([...blocks, defaultBlock(type)]);
   const removeBlock = (id) => onChange(blocks.filter((b) => b.id !== id));
   const updateBlock = (id, patch) =>
@@ -131,27 +147,95 @@ const BlogContentBlockEditor = ({ blocks, onChange }) => {
               )}
               {block.type === 'text' && (
                 <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-gray-500">
-                    <span className="uppercase tracking-wide font-semibold text-gray-400 mr-1">
-                      Formatowanie:
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
-                      **pogrubienie**
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
-                      *kursywa*
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
-                      # nagłówek
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
-                      - lista
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 justify-between">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="uppercase tracking-wide font-semibold text-gray-400 mr-1">
+                        Formatowanie:
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+                        **pogrubienie**
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+                        *kursywa*
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+                        # nagłówek
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">
+                        - lista
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 font-semibold"
+                        onClick={() => {
+                          const ta = textAreaRefs.current[block.id];
+                          const res = wrapSelection(ta, '**');
+                          if (!res) return;
+                          updateBlock(block.id, { text: res.newValue });
+                          requestAnimationFrame(() => {
+                            ta.selectionStart = res.newCursorStart;
+                            ta.selectionEnd = res.newCursorEnd;
+                            ta.focus();
+                          });
+                        }}
+                      >
+                        B
+                      </button>
+                      <button
+                        type="button"
+                        className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 italic"
+                        onClick={() => {
+                          const ta = textAreaRefs.current[block.id];
+                          const res = wrapSelection(ta, '*');
+                          if (!res) return;
+                          updateBlock(block.id, { text: res.newValue });
+                          requestAnimationFrame(() => {
+                            ta.selectionStart = res.newCursorStart;
+                            ta.selectionEnd = res.newCursorEnd;
+                            ta.focus();
+                          });
+                        }}
+                      >
+                        i
+                      </button>
+                      <button
+                        type="button"
+                        className="px-1.5 py-0.5 rounded border border-gray-200 bg-white hover:bg-gray-100 text-green-700"
+                        onClick={() => {
+                          const ta = textAreaRefs.current[block.id];
+                          const res = wrapSelection(ta, '==');
+                          if (!res) return;
+                          updateBlock(block.id, { text: res.newValue });
+                          requestAnimationFrame(() => {
+                            ta.selectionStart = res.newCursorStart;
+                            ta.selectionEnd = res.newCursorEnd;
+                            ta.focus();
+                          });
+                        }}
+                      >
+                        A
+                      </button>
+                      <select
+                        value={block.variant || 'normal'}
+                        onChange={(e) => updateBlock(block.id, { variant: e.target.value })}
+                        className="ml-1 px-2 py-1 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-600"
+                      >
+                        <option value="normal">Zwykły tekst</option>
+                        <option value="lead">Większy lead</option>
+                        <option value="accent">Zielony akcent</option>
+                        <option value="small">Mały opis</option>
+                      </select>
+                    </div>
                   </div>
                   <textarea
+                    ref={(el) => {
+                      if (el) textAreaRefs.current[block.id] = el;
+                    }}
                     value={block.text ?? ''}
                     onChange={(e) => updateBlock(block.id, { text: e.target.value })}
-                    placeholder="Akapit tekstu. Możesz używać **pogrubienia**, *kursywy*, list itp."
+                    placeholder="Akapit tekstu. Zaznacz fragment i użyj przycisków powyżej, albo wpisz **pogrubienie** ręcznie."
                     rows={4}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                   />

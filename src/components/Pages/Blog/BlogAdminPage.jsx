@@ -197,6 +197,22 @@ const BlogAdminPage = () => {
                 loading={loadingArticles}
                 onEdit={startEditArticle}
                 onNew={startNewArticle}
+                onDelete={async (slug) => {
+                  if (!window.confirm('Czy na pewno chcesz trwale usunąć ten artykuł?')) return;
+                  const { error } = await blogService.deleteArticle(slug);
+                  if (error) {
+                    setStatus({ type: 'error', message: error.message || 'Nie udało się usunąć artykułu.' });
+                    return;
+                  }
+                  const list = await blogService.getAllArticles();
+                  setArticles(list || []);
+                  if (editingSlug === slug) {
+                    setEditingSlug(null);
+                    setForm(emptyForm());
+                    setBlocks([]);
+                  }
+                  setStatus({ type: 'success', message: 'Artykuł został usunięty.' });
+                }}
               />
               <BlogAdminArticleForm
                 form={form}

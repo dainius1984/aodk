@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BlogAdminArticleList = ({ articles, loading, onEdit, onNew }) => (
+const BlogAdminArticleList = ({ articles, loading, onEdit, onNew, onDelete }) => (
   <section className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold text-gray-800">Istniejące artykuły</h2>
@@ -31,13 +31,22 @@ const BlogAdminArticleList = ({ articles, loading, onEdit, onNew }) => (
                 {article.date} · {article.category} · slug: {article.slug}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => onEdit(article)}
-              className="px-3 py-1 text-xs rounded-lg border border-green-600 text-green-700 hover:bg-green-50 whitespace-nowrap"
-            >
-              Edytuj
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => onEdit(article)}
+                className="px-3 py-1 text-xs rounded-lg border border-green-600 text-green-700 hover:bg-green-50 whitespace-nowrap"
+              >
+                Edytuj
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete?.(article.slug)}
+                className="px-3 py-1 text-xs rounded-lg border border-red-500 text-red-600 hover:bg-red-50 whitespace-nowrap"
+              >
+                Usuń
+              </button>
+            </div>
           </li>
         ))}
       </ul>
