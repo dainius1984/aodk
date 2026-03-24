@@ -44,7 +44,8 @@ const ContactPage = () => {
           name: formState.name,
           time: new Date().toLocaleString(), // Adding current time
           message: formState.message,
-          email: formState.email
+          email: formState.email,
+          reply_to: formState.email
         }
       );
       

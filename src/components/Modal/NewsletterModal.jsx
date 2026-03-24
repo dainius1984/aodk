@@ -113,6 +113,7 @@ const NewsletterModal = ({ isOpen, onClose, onSuccess }) => {
           title: "Newsletter Subscription",
           name: name,
           email: email,
+          reply_to: email,
           message: `Nowy użytkownik zapisał się do newslettera. Email: ${email}`,
           time: new Date().toLocaleString(),
         }

@@ -78,7 +78,8 @@ const FeedbackModal = ({ isOpen, onClose }) => {
           name: formState.name,
           time: new Date().toLocaleString(),
           message: formState.message,
-          email: formState.email
+          email: formState.email,
+          reply_to: formState.email
         }
       );
       
